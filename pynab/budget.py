@@ -4,19 +4,42 @@ import locale
 from pynab.exceptions import InvalidBudget
 
 
-class Category(object):
-    pass
+class Entity(dict):
 
+    def __repr__(self):
+        return u'<{}>'.format(self.__unicode__())
 
-class Account(dict):
+    def __unicode__(self):
+        return u'{} ({})'.format(self.name, self.type)
 
     @property
     def id(self):
         return self['entityId']
 
     @property
+    def type(self):
+        return self['entityType']
+
+    @property
+    def version(self):
+        return self['entityVersion']
+
+    @property
     def name(self):
         return self['name']
+
+
+class Category(Entity):
+    """
+    YNAB Budget Category
+    """
+    pass
+
+
+class Account(Entity):
+    """
+    YNAB Account
+    """
 
     @property
     def account_type(self):
@@ -37,11 +60,11 @@ class Account(dict):
     def __unicode__(self):
         return u'{} ({})'.format(self['accountName'], self['accountType'])
 
-    def __repr__(self):
-        return u'<{}>'.format(self.__unicode__())
-
 
 class Budget(object):
+    """
+    YNAB Budget
+    """
 
     def __init__(self, filename=None):
         self._data = None
@@ -77,7 +100,7 @@ class Budget(object):
     @property
     def budget_type(self):
         """
-        Returnt the budget type
+        Returns the budget type
         """
         if self._data:
             return self._data['budgetMetaData']['budgetType']
@@ -100,4 +123,11 @@ class Budget(object):
 
     @property
     def accounts(self):
+        """
+        Returns all the accounts stored in the Budget
+        """
         return [Account(account) for account in self._data['accounts']]
+
+    @property
+    def payees(self):
+        return [Entity(payee) for payee in self._data['payees']]
