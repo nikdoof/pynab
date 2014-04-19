@@ -4,13 +4,28 @@ import locale
 from pynab.exceptions import InvalidBudget
 
 
+class EntityList(list):
+
+    def filter(self, key, value):
+        return EntityList([x for x in self if x.getattr(key, None) == value])
+
+    def get(self, key, value):
+        for x in self:
+            if x.getattr(key, None) == value:
+                return x
+
+
 class Entity(dict):
+
+    def __init__(self, budget, *args, **kwargs):
+        self._budget = budget
+        dict.__init__(self, *args, **kwargs)
 
     def __repr__(self):
         return u'<{}>'.format(self.__unicode__())
 
     def __unicode__(self):
-        return u'{} ({})'.format(self.name, self.type)
+        return u'{} ({})'.format(self.id, self.type)
 
     @property
     def id(self):
@@ -97,6 +112,15 @@ class Budget(object):
         with open(os.path.join(data_folder, target_folder, 'Budget.yfull')) as f:
             self._data = load(f)
 
+    def get_account(self, id):
+        """
+        Returns an Account entity by ID
+        """
+        if isinstance(id, list) or isinstance(id, tuple):
+            return [x for x in self.accounts if x.id in id]
+        else:
+            return self.accounts.get(id)
+
     @property
     def budget_type(self):
         """
@@ -126,8 +150,19 @@ class Budget(object):
         """
         Returns all the accounts stored in the Budget
         """
-        return [Account(account) for account in self._data['accounts']]
+        if not hasattr(self, '_accounts'):
+            self._accounts = EntityList([Account(self, account) for account in self._data['accounts']])
+        return self._accounts
 
     @property
     def payees(self):
-        return [Entity(payee) for payee in self._data['payees']]
+        if not hasattr(self, '_payees'):
+            self._payees = EntityList([Entity(self, payee) for payee in self._data['payees']])
+        return self._payees
+
+
+    @property
+    def transactions(self):
+        if not hasattr(self, '_transactions'):
+            self._transactions = EntityList([Entity(self, transaction) for transaction in self._data['transactions']])
+        return self._transactions
