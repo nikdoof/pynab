@@ -3,6 +3,8 @@ pYNAB
 
 ```pYNAB``` is a read-only YNAB4 budget file reader for Python, with support for Python 2.7 and 3.2+
 
+[![Build Status](https://travis-ci.org/nikdoof/pynab.png)](https://travis-ci.org/nikdoof/pynab)
+
 Why?
 ----
 

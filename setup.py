@@ -40,4 +40,5 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Python Modules',
         ],
+    test_suite='pynab.tests',
 )
